@@ -70,6 +70,122 @@
 
 먼저 앞의 3가지를 알아보자. 외부 파일(설정 데이터)은 뒤에서 설명한다.
 
+## 외부 설정 - OS 환경 변수
+
+OS 환경 변수(OS environment variables)는 해당 OS를 사용하는 모든 프로그램에서 읽을 수 있는 설정값이다. 
+
+한마디로 다른 외부 설정과 비교해서 사용 범위가 가장 넓다.
+
+**조회 방법**
+* 윈도우 OS: `set`
+* MAC, 리눅스 OS: `printenv`
+
+**printenv** 실행 결과
+
+```shell
+➜  spring-external git:(main) printenv
+TERM_SESSION_ID=w1t0p0:20974025-15BF-4C60-BA7F-73153B5A1AB3
+SSH_AUTH_SOCK=/private/tmp/com.apple.launchd.9q4FLyPtzi/Listeners
+LC_TERMINAL_VERSION=3.5.9
+COLORFGBG=7;0
+ITERM_PROFILE=Default
+SQLITE_EXEMPT_PATH_FROM_VNODE_GUARDS=/Users/seonhoshin/Library/WebKit/Databases
+XPC_FLAGS=0x0
+LANG=ko_KR.UTF-8
+PWD=/Users/seonhoshin/javacode/spring/springboot/spring-external
+SHELL=/bin/zsh
+__CFBundleIdentifier=com.googlecode.iterm2
+SECURITYSESSIONID=186ab
+TERM_FEATURES=T3LrMSc7UUw9Ts3BFGsSyHNoSxF
+TERM_PROGRAM_VERSION=3.5.9
+TERM_PROGRAM=iTerm.app
+PATH=/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/Applications/iTerm.app/Contents/Resources/utilities
+LC_TERMINAL=iTerm2
+COLORTERM=truecolor
+COMMAND_MODE=unix2003
+TERM=xterm-256color
+TERMINFO_DIRS=/Applications/iTerm.app/Contents/Resources/terminfo:/usr/share/terminfo
+HOME=/Users/seonhoshin
+TMPDIR=/var/folders/5q/y03lgw592353dvzjthlx785r0000gn/T/
+USER=seonhoshin
+XPC_SERVICE_NAME=0
+LOGNAME=seonhoshin
+LaunchInstanceID=47ED10C9-9DBD-476D-8027-248BA094A50C
+__CF_USER_TEXT_ENCODING=0x0:3:51
+ITERM_SESSION_ID=w1t0p0:20974025-15BF-4C60-BA7F-73153B5A1AB3
+SHLVL=1
+OLDPWD=/Users/seonhoshin/javacode/spring/springboot
+ZSH=/Users/seonhoshin/.oh-my-zsh
+PAGER=less
+LESS=-R
+LSCOLORS=Gxfxcxdxbxegedabagacad
+LS_COLORS=di=1;36:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43
+_=/usr/bin/printenv
+➜  spring-external git:(main) ✗
+```
+
+**설정 방법**
+
+OS환경변수의 값을 설정하는 방법은 `윈도우 환경 변수` , `mac 환경 변수` 등으로 검색해보자.
+
+수많은 예시를 확인할 수 있다.
+
+애플리케이션에서 OS 환경 변수의 값을 읽어보자.
+
+```java
+@Slf4j
+public class OsEnv {
+
+    public static void main(String[] args) {
+        Map<String, String> getenv = System.getenv();
+
+        getenv.forEach((key, value) -> {
+            log.info("key={} value={}", key, value);
+        });
+    }
+}
+```
+
+```shell
+23:00:38.719 [main] INFO hello.external.OsEnv - key=PATH value=/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin
+23:00:38.721 [main] INFO hello.external.OsEnv - key=__CFBundleIdentifier value=com.jetbrains.intellij
+23:00:38.721 [main] INFO hello.external.OsEnv - key=SHELL value=/bin/zsh
+23:00:38.721 [main] INFO hello.external.OsEnv - key=PAGER value=less
+23:00:38.721 [main] INFO hello.external.OsEnv - key=LSCOLORS value=Gxfxcxdxbxegedabagacad
+23:00:38.721 [main] INFO hello.external.OsEnv - key=OLDPWD value=/
+
+```
+
+`System.getenv()` 를 사용하면 전체 OS 환경 변수를 `Map` 으로 조회할 수 있다. 
+
+`System.getenv(key)` 를 사용하면 특정 OS 환경 변수의 값을 `String` 으로 조회할 수 있다.
+
+OS 환경 변수를 설정하고, 필요한 곳에서 `System.getenv()` 를 사용하면 외부 설정을 사용할 수 있다.
+
+이제 데이터베이스 접근 URL과 같은 정보를 OS 환경 변수에 설정해두고 읽어들이면 된다.
+
+예를 들어서 개발 서버에서는 `DBURL=dev.db.com` 과 같이 설정하고, 운영 서버에서는 `DBURL=prod.db.com` 와 같이 설정하는 것이다.
+
+이렇게 하면 `System.getenv("DBURL")` 을 조회할 때 각각 환경에 따라서 서로 다른 값을 읽게 된다.
+
+하지만 OS 환경 변수는 이 프로그램 뿐만 아니라 다른 프로그램에서도 사용할 수 있다. 
+
+쉽게 이야기해서 전역 변수 같은 효과가 있다. 
+
+여러 프로그램에서 사용하는 것이 맞을 때도 있지만, 해당 애플리케이션을 사용하는 자바 프로그램 안에서만 사용되는 외부 설정값을 사용하고 싶을 때도 있다. 
+
+다음에는 특정 자바 프로그램안에서 사용하는 외부 설정을 알 아보자.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
