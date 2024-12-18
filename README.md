@@ -213,6 +213,10 @@ public class JavaSystemProperties {
 }
 ```
 
+<img width="664" alt="Screenshot 2024-12-18 at 22 28 32" src="https://github.com/user-attachments/assets/28ca889b-2231-4e7b-adbd-8e732346b278" />
+
+** 결과 **
+
 ```text
 22:24:21.618 [main] INFO hello.external.JavaSystemProperties - prop java.specification.version=17
 22:24:21.619 [main] INFO hello.external.JavaSystemProperties - prop java.specification.version=17
