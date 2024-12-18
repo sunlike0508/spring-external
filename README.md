@@ -215,7 +215,7 @@ public class JavaSystemProperties {
 
 <img width="664" alt="Screenshot 2024-12-18 at 22 28 32" src="https://github.com/user-attachments/assets/28ca889b-2231-4e7b-adbd-8e732346b278" />
 
-** 결과 **
+**결과**
 
 ```text
 22:24:21.618 [main] INFO hello.external.JavaSystemProperties - prop java.specification.version=17
@@ -245,15 +245,69 @@ public class JavaSystemProperties {
 
 * 참고로 이 방식은 코드 안에서 사용하는 것이기 때문에 외부로 설정을 분리하는 효과는 없다.
 
+## 외부 설정 - 커맨드 라인 인수
+
+커맨드 라인 인수(Command line arguments)는 애플리케이션 실행 시점에 외부 설정값을 `main(args)` 메서드의 `args` 파라미터로 전달하는 방법이다.
+
+다음과 같이 사용한다.
+
+예) `java -jar app.jar dataA dataB`
+
+필요한 데이터를 마지막 위치에 스페이스로 구분해서 전달하면 된다. 이 경우 `dataA` , `dataB` 2개의 문자 가 `args` 에 전달된다.
+
+```java
+@Slf4j
+public class CommandLineV1 {
+
+    public static void main(String[] args) {
+        for(String arg : args) {
+            log.info("arg {}", arg);
+        }
+    }
+}
+```
 
 
+**결과**
+```text
+22:35:24.741 [main] INFO hello.external.CommandLineV1 - arg dataA
+22:35:24.743 [main] INFO hello.external.CommandLineV1 - arg dataB
+```
 
+**Jar 실행**
+`jar` 로 빌드되어 있다면 실행시 다음과 같이 커맨드 라인 인수를 추가할 수 있다. 
 
+`java -jar project.jar dataA dataB`
 
+**key=value 형식 입력**
 
+애플리케이션을 개발할 때는 보통 `key=value` 형식으로 데이터를 받는 것이 편리하다. 
 
+이번에는 커맨드 라인 인수를 다음과 같이 입력하고 실행해보자
 
+`url=devdb username=dev_user password=dev_pw`
 
+```text
+22:36:54.221 [main] INFO hello.external.CommandLineV1 - arg url=devdb
+22:36:54.223 [main] INFO hello.external.CommandLineV1 - arg username=dev_user
+22:36:54.223 [main] INFO hello.external.CommandLineV1 - arg password=dev_pw
+```
+
+실행 결과를 보면 알겠지만 커맨드 라인 인수는 `key=value` 형식이 아니다. 
+
+단순히 문자를 여러게 입력 받는 형식인 것이다. 그래서 3가지 문자가 입력되었다.
+
+`url=devdb` 
+`username=dev_user` 
+`password=dev_pw`
+
+이것은 파싱되지 않은, 통 문자이다.
+
+이 경우 개발자가 `=` 을 기준으로 직접 데이터를 파싱해서 `key=value` 형식에 맞도록 분리해야 한다. 
+
+그리고 형식이 배열이기 때문에 루프를 돌면서 원하는 데이터를 찾아야 하는 번거로움도 발생한다.
+
+실제 애플리케이션을 개발할 때는 주로 `key=value` 형식을 자주 사용하기 때문에 결국 파싱해서 `Map` 같은 형식으로 변환하도록 직접 개발해야하는 번거로움이 있다.
 
 
 
