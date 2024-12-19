@@ -352,9 +352,103 @@ public class CommandLineV2 {
 23:25:57.364 [main] INFO hello.external.CommandLineV2 - arg mode=on`
 ```
 
+### ApplicationArguments
+
+```java
+@Slf4j
+public class CommandLineV2 {
+
+    public static void main(String[] args) {
+
+        for(String arg : args) {
+            log.info("arg {}", arg);
+        }
+
+        ApplicationArguments appArgs = new DefaultApplicationArguments(args);
+
+        log.info("SourceAges = {}", List.of(appArgs.getSourceArgs()));
+        log.info("NoOptionArgs = {}", List.of(appArgs.getNonOptionArgs()));
+        log.info("OptionNames={}", appArgs.getOptionNames());
+
+        Set<String> names = appArgs.getOptionNames();
+
+        for(String name : names) {
+            log.info("option arg {}={}", name, appArgs.getOptionValues(name));
+        }
+
+        List<String> url = appArgs.getOptionValues("url");
+        List<String> username = appArgs.getOptionValues("username");
+        List<String> password = appArgs.getOptionValues("password");
+        List<String> mode = appArgs.getOptionValues("mode");
 
 
+        log.info("url={}", url);
+        log.info("username={}", username);
+        log.info("password={}", password);
+        log.info("mode={}", mode);
+    }
+}
+```
 
+```text
+23:36:43.606 [main] INFO hello.external.CommandLineV2 - arg --url=devdb
+23:36:43.608 [main] INFO hello.external.CommandLineV2 - arg --username=dev_user
+23:36:43.608 [main] INFO hello.external.CommandLineV2 - arg --password=dev_pw
+23:36:43.608 [main] INFO hello.external.CommandLineV2 - arg mode=on
+23:36:43.615 [main] INFO hello.external.CommandLineV2 - SourceAges = [--url=devdb, --username=dev_user, --password=dev_pw, mode=on]
+23:36:43.615 [main] INFO hello.external.CommandLineV2 - NoOptionArgs = [[mode=on]]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - OptionNames=[password, url, username]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - option arg password=[dev_pw]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - option arg url=[devdb]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - option arg username=[dev_user]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - url=[devdb]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - username=[dev_user]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - password=[dev_pw]
+23:36:43.616 [main] INFO hello.external.CommandLineV2 - mode=null
+```
+
+스프링이 제공하는 `ApplicationArguments` 인터페이스와 `DefaultApplicationArguments` 구현체를 사용하면 커맨드 라인 옵션 인수를 규격대로 파싱해서 편리하게 사용할 수 있다.
+
+**실행**
+
+커맨드 라인 인수를 다음과 같이 입력하고 실행해보자
+
+`--url=devdb --username=dev_user --password=dev_pw mode=on` 이해를 돕기 위해 `--` (dash)가 없는 `mode=on` 이라는 옵션도 마지막에 추가했다.
+
+여기서 커맨드 라인 옵션 인수와, 옵션 인수가 아닌 것을 구분할 수 있다. 
+
+**옵션 인수**
+
+* `--` 로 시작한다.
+* `--url=devdb` `--username=dev_user` `--password=dev_pw`
+
+**옵션 인수가 아님**
+
+* `--` 로 시작하지 않는다.
+* `mode=on`
+
+실행 결과를 분석해보자
+
+* `arg` : 커맨드 라인의 입력 결과를 그대로 출력한다.
+* `SourceArgs` : 커맨드 라인 인수 전부를 출력한다.
+* `NonOptionArgs = [mode=on]` : 옵션 인수가 아니다. `key=value` 형식으로 파싱되지 않는다. `--` 를 앞에 사용하지 않았다.
+* `OptionNames = [password, url, username]` : `key=value` 형식으로 사용되는 옵션 인수다.
+* `--` 를 앞에 사용했다.
+* `url` , `username` , `password` 는 옵션 인수이므로 `appArgs.getOptionValues(key)` 로 조회할 수 있다.
+* `mode` 는 옵션 인수가 아니므로 `appArgs.getOptionValues(key)` 로 조회할 수 없다. 따라서 결과는 `null` 이다.
+
+**참고**
+
+* 참고로 옵션 인수는 `--username=userA --username=userB` 처럼 하나의 키에 여러 값을 포함할 수 있기 때문에 `appArgs.getOptionValues(key)` 의 결과는 리스트( `List` )를 반환한다.
+  * --url=devdb --url=devdb2 --username=dev_user --password=dev_pw mode=on
+  * 이렇게 실행하면 다음과 같이 나온다.
+    ```text
+    23:37:43.498 [main] INFO hello.external.CommandLineV2 - url=[devdb, devdb2]
+    23:37:43.498 [main] INFO hello.external.CommandLineV2 - username=[dev_user]
+    23:37:43.498 [main] INFO hello.external.CommandLineV2 - password=[dev_pw]
+    23:37:43.498 [main] INFO hello.external.CommandLineV2 - mode=null
+    ```
+* 커맨드 라인 옵션 인수는 자바 언어의 표준 기능이 아니다. 스프링이 편리함을 위해 제공하는 기능이다.
 
 
 
