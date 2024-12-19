@@ -343,6 +343,8 @@ public class CommandLineV2 {
 }
 ```
 
+<img width="957" alt="Screenshot 2024-12-19 at 23 25 54" src="https://github.com/user-attachments/assets/c352b864-3f2f-4af5-8098-b65fe1262291" />
+
 ```text
 23:25:57.362 [main] INFO hello.external.CommandLineV2 - arg `--url=devdb
 23:25:57.364 [main] INFO hello.external.CommandLineV2 - arg --username=dev_user
