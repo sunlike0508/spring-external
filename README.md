@@ -309,6 +309,63 @@ public class CommandLineV1 {
 
 실제 애플리케이션을 개발할 때는 주로 `key=value` 형식을 자주 사용하기 때문에 결국 파싱해서 `Map` 같은 형식으로 변환하도록 직접 개발해야하는 번거로움이 있다.
 
+## 외부 설정 - 커맨드 라인 옵션 인수
+
+**일반적인 커맨드 라인 인수**
+
+커맨드 라인에 전달하는 값은 형식이 없고, 단순히 띄어쓰기로 구분한다.
+* `aaa bbb` `[aaa, bbb]` 값 2개
+* `hello world` `[hello, world]` 값 2개
+* `"hello world"` `[hello world]` (공백을연결하려면 `"` 를사용하면된다.) 값 1개 
+* `key=value` `[key=value]` 값 1개
+
+**커맨드 라인 옵션 인수(command line option arguments)**
+
+커맨드 라인 인수를 `key=value` 형식으로 구분하는 방법이 필요하다. 
+
+그래서 스프링에서는 커맨드 라인 인수를`key=value` 형식으로 편리하게 사용할 수 있도록 스프링 만의 표준 방식을 정의했는데, 그것이 바로 커맨드 라인 옵션 인수이다.
+스
+프링은 커맨드 라인에 `-` (dash) 2개( `--` )를 연결해서 시작하면 `key=value` 형식으로 정하고 이것을 커맨드 라인 옵션 인수라 한다.
+
+* `--key=value` 형식으로 사용한다.
+* `--username=userA --username=userB` 하나의 키에 여러 값도 지정할 수 있다.
+
+```java
+@Slf4j
+public class CommandLineV2 {
+
+    public static void main(String[] args) {
+
+        for(String arg : args) {
+            log.info("arg {}", arg);
+        }
+    }
+}
+```
+
+```text
+23:25:57.362 [main] INFO hello.external.CommandLineV2 - arg `--url=devdb
+23:25:57.364 [main] INFO hello.external.CommandLineV2 - arg --username=dev_user
+23:25:57.364 [main] INFO hello.external.CommandLineV2 - arg --password=dev_pw
+23:25:57.364 [main] INFO hello.external.CommandLineV2 - arg mode=on`
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
