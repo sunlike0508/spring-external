@@ -458,6 +458,21 @@ public class CommandLineV2 {
 
 그래서 해당 빈을 주입 받으면 커맨드 라인으 로 입력한 값을 어디서든 사용할 수 있다.
 
+```java
+
+```
+
+
+**실행**
+
+커맨드 라인 인수를 다음과 같이 입력하고 실행해보자
+
+`--url=devdb --username=dev_user --password=dev_pw mode=on` 
+
+다음을 실행한다. 
+
+`ExternalApplication.main()`
+
 
 
 
