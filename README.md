@@ -459,7 +459,28 @@ public class CommandLineV2 {
 그래서 해당 빈을 주입 받으면 커맨드 라인으 로 입력한 값을 어디서든 사용할 수 있다.
 
 ```java
+@Slf4j
+@Component
+public class CommandLineBean {
 
+    private final ApplicationArguments arguments;
+
+    public CommandLineBean(ApplicationArguments arguments) {
+        this.arguments = arguments;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.info("source {}", List.of(arguments.getSourceArgs()));
+        log.info("optionNames {}", arguments.getOptionNames());
+
+        Set<String> optionNames = arguments.getOptionNames();
+
+        for(String optionName : optionNames) {
+            log.info("option args {}={}", optionName, arguments.getOptionValues(optionName));
+        }
+    }
+}
 ```
 
 
@@ -472,6 +493,20 @@ public class CommandLineV2 {
 다음을 실행한다. 
 
 `ExternalApplication.main()`
+
+**실행 결과** 
+
+```
+CommandLineBean: source [--url=devdb, --username=dev_user, --password=dev_pw, mode=on]
+CommandLineBean: optionNames [password, url, username]
+CommandLineBean: option args password=[dev_pw]
+CommandLineBean: option args url=[devdb]
+CommandLineBean: option args username=[dev_user]
+```
+
+실행 결과를 보면, 입력한 커맨드 라인 인수, 커맨드 라인 옵션 인수를 확인할 수 있다.
+
+
 
 
 
