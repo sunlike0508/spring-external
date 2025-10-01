@@ -528,7 +528,7 @@ CommandLineBean: option args username=[dev_user]
 
 ### **스프링의 외부 설정 통합**
 
-<<사진>>
+<img width="918" height="398" alt="Screenshot 2025-10-01 at 13 22 56" src="https://github.com/user-attachments/assets/0208bece-2fdb-4c0f-92ed-b1f712e7b718" />
 
 **PropertySource** 
 
@@ -609,8 +609,12 @@ public class EnvironmentCheck {
 범위가 넒은 것 보다 좁은 것이 우선권을 가진다. (자바 시스템 속성은 해당 JVM 안에서 모두 접근할 수 있다.
 반면에 커맨드 라인 옵션 인수는 `main` 의 arg를 통해서 들어오기 때문에 접근 범위가 더 좁다.)
 
-자바 시스템 속성과 커맨드 라인 옵션 인수의 경우 커맨드 라인 옵션 인수의 범위가 더 좁기 때문에 커맨드 라인 옵션 인 수가 우선권을 가진다.
+자바 시스템 속성과 커맨드 라인 옵션 인수의 경우 커맨드 라인 옵션 인수의 범위가 더 좁기 때문에 커맨드 라인 옵션 인수가 우선권을 가진다.
 
-<<사진>>
+* 커맨드, 자바 둘다 적용했을 경우 결과
+
+<img width="569" height="376" alt="Screenshot 2025-10-01 at 17 45 17" src="https://github.com/user-attachments/assets/78cb24d9-9345-4c56-8469-259db6e95e44" />
+
+<img width="990" height="311" alt="Screenshot 2025-10-01 at 18 17 54" src="https://github.com/user-attachments/assets/28c26dd6-d409-4a90-9392-88ce9a9ec754" />
 
 
