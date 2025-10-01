@@ -506,7 +506,7 @@ CommandLineBean: option args username=[dev_user]
 
 실행 결과를 보면, 입력한 커맨드 라인 인수, 커맨드 라인 옵션 인수를 확인할 수 있다.
 
-##외부 설정 - 스프링 통합
+## 외부 설정 - 스프링 통합
 
 지금까지 살펴본, 커맨드 라인 옵션 인수, 자바 시스템 속성, OS 환경변수는 모두 외부 설정을 `key=value` 형식으로 사용할 수 있는 방법이다. 
 
@@ -526,14 +526,91 @@ CommandLineBean: option args username=[dev_user]
 
 스프링은 이 문제를 `Environment` 와 `PropertySource` 라는 추상화를 통해서 해결한다.
 
+### **스프링의 외부 설정 통합**
+
+<<사진>>
+
+**PropertySource** 
+
+* `org.springframework.core.env.PropertySource`
+* 스프링은 `PropertySource` 라는 추상 클래스를 제공하고, 각각의 외부 설정를 조회하는 `XxxPropertySource` 구현체를 만들어두었다. 
+  * 예)`CommandLinePropertySource`, `SystemEnvironmentPropertySource`
+* 스프링은 로딩 시점에 필요한 `PropertySource` 들을 생성하고, `Environment` 에서 사용할 수 있게 연 결해둔다.
+
+**Environment**
+* `org.springframework.core.env.Environment`
+* `Environment` 를 통해서 특정 외부 설정에 종속되지 않고, 일관성 있게 `key=value` 형식의 외부 설정에 접근할 수 있다.
+* `environment.getProperty(key)` 를 통해서 값을 조회할 수 있다. `Environment` 는 내부에서 여러 과정을 거쳐서 `PropertySource` 들에 접근한다.
+같은 값이 있을 경우를 대비해서 스프링은 미리 우선순위를 정해두었다. (뒤에서 설명한다.) 
+* 모든 외부 설정은 이제 `Environment` 를 통해서 조회하면 된다.
+
+**설정 데이터(파일)**
+
+여기에 우리가 잘 아는 `application.properties` , `application.yml` 도 `PropertySource` 에 추가된다. 따라서 `Environment` 를 통해서 접근할 수 있다.
+
+```java
+@Slf4j
+@Component
+public class EnvironmentCheck {
+
+    private final Environment env;
 
 
+    public EnvironmentCheck(Environment env) {
+        this.env = env;
+    }
 
+    @PostConstruct
+    public void init() {
+        String url = env.getProperty("url");
+        String username = env.getProperty("username");
+        String password = env.getProperty("password");
+        log.info("url={}", url);
+        log.info("username={}", username);
+        log.info("password={}", password);
+    }
+}
+```
 
+* 커맨드 라인 옵션 인수 실행
+`--url=devdb --username=dev_user --password=dev_pw` 
 
+* 자바 시스템 속성 실행
+`-Durl=devdb -Dusername=dev_user -Dpassword=dev_pw`
 
+**실행 결과**
+```
+ env url=devdb
+ env username=dev_user
+ env password=dev_pw
+```
+**정리**
 
+커맨드 라인 옵션 인수, 자바 시스템 속성 모두 `Environment` 를 통해서 동일한 방법으로 읽을 수 있는 것을 확인했다. 
 
+스프링은 `Environment` 를 통해서 외부 설정을 읽는 방법을 추상화했다. 
 
+덕분에 자바 시스템 속성을 사용하다가 만약 커맨드 라인 옵션 인수를 사용하도록 읽는 방법이 변경되어도, 개발 소스 코드는 전혀 변경하지 않아도 된다.
+
+### 우선순위
+
+예를 들어서 커맨드 라인 옵션 인수와 자바 시스템 속성을 다음과 같이 중복해서 설정하면 어떻게 될까? 
+
+* 커맨드 라인 옵션 인수 실행
+`--url=proddb --username=prod_user --password=prod_pw` 
+* 자바 시스템 속성 실행
+`-Durl=devdb -Dusername=dev_user -Dpassword=dev_pw`
+
+우선순위는 상식 선에서 딱 2가지만 기억하면 된다.
+
+더 유연한 것이 우선권을 가진다. (변경하기 어려운 파일 보다 실행시 원하는 값을 줄 수 있는 자바 시스템
+속성이 더 우선권을 가진다.)
+
+범위가 넒은 것 보다 좁은 것이 우선권을 가진다. (자바 시스템 속성은 해당 JVM 안에서 모두 접근할 수 있다.
+반면에 커맨드 라인 옵션 인수는 `main` 의 arg를 통해서 들어오기 때문에 접근 범위가 더 좁다.)
+
+자바 시스템 속성과 커맨드 라인 옵션 인수의 경우 커맨드 라인 옵션 인수의 범위가 더 좁기 때문에 커맨드 라인 옵션 인 수가 우선권을 가진다.
+
+<<사진>>
 
 
