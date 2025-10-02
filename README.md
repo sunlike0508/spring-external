@@ -800,6 +800,125 @@ password=prod_pw
 
 설정 파일을 각각 분리해서 관리하면 한눈에 전체가 들어오지 않는 단점이 있다.
 
+## 설정 데이터3 - 내부 파일 합체
+
+설정 파일을 각각 분리해서 관리하면 한눈에 전체가 들어오지 않는 단점이 있다.
+
+스프링은 이런 단점을 보완하기 위해 물리적인 하나의 파일 안에서 논리적으로 영역을 구분하는 방법을 제공한다.
+
+* 기존에는 dev 환경은 `application-dev.properties` , prod 환경은 `application- prod.properties` 파일이 필요했다.
+* 스프링은 하나의 `application.properties` 파일 안에서 논리적으로 영역을 구분하는 방법을 제공한다.
+* `application.properties` 라는 하나의 파일 안에서 논리적으로 영역을 나눌 수 있다.
+  * `application.properties` 구분 방법 `#---` 또는 `!---` (dash 3) 
+  * `application.yml` 구분 방법 `---` (dash 3)
+* 그림의 오른쪽 `application.properties` 는 하나의 파일이지만 내부에 2개의 논리 문서로 구분되어 있다. 
+  * dev 프로필이 활성화 되면 상위 설정 데이터가 사용된다. 
+  * prod 프로필이 활성화 되면 하위 설정 데이터가 사용된다. 
+* 프로필에 따라 논리적으로 구분된 설정 데이터를 활성화 하는 방법
+  * `spring.config.activate.on-profile` 에 프로필 값 지정
+
+
+**설정 데이터를 하나의 파일로 통합하기**
+
+우선 기존 내용을 사용하지 않도록 정리해야 한다.
+
+다음 내용은 사용하지 않도록 `#` 을 사용해서 주석 처리하자.
+
+`application-dev.properties` 주석 처리 
+
+```properties
+#url=dev.db.com
+#username=dev_user
+#password=dev_pw
+```
+
+`application-prod.properties` 주석 처리 
+
+```properties
+ #url=prod.db.com
+ #username=prod_user
+ #password=prod_pw
+```
+
+`main/resources` 에 다음 파일을 추가하자 
+
+`application.properties`
+
+```properties
+spring.config.activate.on-profile=dev
+url=dev.db.com
+username=dev_user
+password=dev_pw
+#---
+spring.config.activate.on-profile=prod
+url=prod.db.com
+username=prod_user
+password=prod_pw
+```
+
+**주의!**
+
+속성 파일 구분 기호에는 선행 공백이 없어야 하며 정확히 3개의 하이픈 문자가 있어야 한다. 
+
+구분 기호 바로 앞과 뒤의 줄은 같은 주석 접두사가 아니어야 한다.
+
+파일을 분할하는 `#---` 주석 위 아래는 주석을 적으면 안된다. 
+
+```properties
+...
+#
+#---
+...
+```
+
+```properties
+...
+#---
+#
+...
+```
+
+**실행**
+
+* 분할 기호 위에 주석이 있다. 문서가 정상적으로 읽히지 않을 수 있다.
+* 분할 기호 아래에 주석이 있다. 문서가 정상적으로 읽히지 않을 수 있다.
+
+* 커맨드 라인 옵션 인수 실행
+  * `--spring.profiles.active=dev` 
+* 자바 시스템 속성 실행 
+  * `-Dspring.profiles.active=dev` 
+* Jar 실행
+  * `./gradlew clean build`
+  * `build/libs` 로 이동
+  * `java -Dspring.profiles.active=dev -jar external-0.0.1-SNAPSHOT.jar`
+  * `java -jar external-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev`
+
+**dev 프로필로 실행 결과** 
+
+```
+The following 1 profile is active: "dev"
+...
+env url=devdb
+env username=dev_user
+env password=dev_pw
+```
+
+**prod 프로필로 실행 결과** 
+
+```
+ The following 1 profile is active: "prod"
+ ...
+ env url=prod.db.com
+ env username=prod_user
+ env password=prod_pw
+```
+
+이제 `application.properties` 라는 파일 하나에 통합해서 다양한 프로필의 설정 데이터를 관리할 수 있다.
+
+
+
+
+
 
 
 
