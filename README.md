@@ -718,7 +718,7 @@ password=dev_pw
 
 쉽게이야기해서 `jar` 하나로 설정 데이터까지 포함해서 관리하는 것이다.
 
-<<사진1>>
+<img width="628" height="280" alt="Screenshot 2025-10-02 at 14 39 29" src="https://github.com/user-attachments/assets/305f2c0a-555e-4a8d-9fce-5c31d6ee574f" />
 
 * 프로젝트안에 소스코드뿐만 아니라 각 환경에 필요한 설정 데이터도 함께 포함해서 관리한다. 
   * 개발용 설정 파일: `application-dev.properties`
@@ -788,10 +788,11 @@ password=prod_pw
 
 **dev 프로필로 실행 결과** 
 
+<img width="498" height="222" alt="Screenshot 2025-10-02 at 14 34 58" src="https://github.com/user-attachments/assets/8d6f4ebf-6c04-4393-9735-97df1c93ba79" />
 
 **prod 프로필로 실행 결과** 
 
-
+<img width="521" height="238" alt="Screenshot 2025-10-02 at 14 35 11" src="https://github.com/user-attachments/assets/f968bf40-e11c-4896-bdf4-9542d3918628" />
 
 이제 설정 데이터를 프로젝트 안에서 함께 관리할 수 있게 되었고, 배포 시점에 설정 정보도 함께 배포된다. 
 
