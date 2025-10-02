@@ -617,4 +617,109 @@ public class EnvironmentCheck {
 
 <img width="990" height="311" alt="Screenshot 2025-10-01 at 18 17 54" src="https://github.com/user-attachments/assets/28c26dd6-d409-4a90-9392-88ce9a9ec754" />
 
+## 설정 데이터1 - 외부 파일
+
+지금까지 학습한 OS 환경 변수, 자바 시스템 속성, 커맨드 라인 옵션 인수는 사용해야 하는 값이 늘어날수록 사용하기가 불편해진다. 
+
+실무에서는 수십개의 설정값을 사용하기도 하므로 이런 값들을 프로그램을 실행할 때마다 입력하게 되면 번거롭고, 관리도 어렵다.
+
+그래서 등장하는 대안으로는 설정값을 파일에 넣어서 관리하는 방법이다. 
+
+그리고 애플리케이션 로딩 시점에 해당 파일을 읽어들이면 된다. 
+
+그 중에서도 `.properties` 라는 파일은 `key=value` 형식을 사용해서 설정값을 관리하기에 아주 적합하다.
+
+<<사진>>
+
+`application.properties` **개발 서버**에 있는 외부 파일 
+
+```properties
+ url=dev.db.com
+ username=dev_user
+password=dev_pw 
+```
+
+`application.properties` **운영 서버**에 있는 외부 파일 
+
+```properties
+ url=prod.db.com
+ username=prod_user
+password=prod_pw 
+```
+
+예를 들면 개발 서버와 운영 서버 각각에 `application.properties` 라는 같은 이름의 파일을 준비해둔다. 
+
+그리고 애플리케이션 로딩 시점에 해당 파일을 읽어서 그 속에 있는 값들을 외부 설정값으로 사용하면 된다. 
+
+참고로 파일 이름이 같으므로 애플리케이션 코드는 그대로 유지할 수 있다.
+
+**스프링과 설정 데이터**
+
+개발자가 파일을 읽어서 설정값으로 사용할 수 있도록 개발을 해야겠지만, 스프링 부트는 이미 이런 부분을 다 구현해두었다. 
+
+개발자는 `application.properties` 라는 이름의 파일을 자바를 실행하는 위치에 만들어 두기만 하면 된다. 
+
+그러면 스프링이 해당 파일을 읽어서 사용할 수 있는 `PropertySource` 의 구현체를 제공한다. 
+
+스프링에서는 이러한 `application.properties` 파일을 설정 데이터(Config data)라 한다. 
+
+당연히 설정 데이터도 `Environment` 를 통해서 조회할 수 있다.
+
+<<사진>>
+
+
+**참고**
+
+지금부터 설명할 내용은 `application.properties` 대신에 `yml` 형식의 `application.yml` 에도 동일하게 적용된다. 
+
+`yml` 과 `application.yml` 은 뒤에 자세히 설명한다.
+
+**동작 확인**
+`./gradlew clean build`
+`build/libs` 로 이동
+
+해당 위치에 `application.properties` 파일 생성
+
+```properties
+url=dev.db.com
+username=dev_user
+password=dev_pw
+```
+`java -jar external-0.0.1-SNAPSHOT.jar` 실행 
+
+**실행 결과**
+
+<<사진>>
+
+이렇게 각각의 환경에 따라 설정 파일의 내용을 다르게 준비하면 된다. 덕분에 설정값의 내용이 많고 복잡해도 파일로 편리하게 관리할 수 있다.
+
+**남은 문제**
+
+외부 설정을 별도의 파일로 관리하게 되면 설정 파일 자체를 관리하기 번거로운 문제가 발생한다.
+
+서버가 10대면 변경사항이 있을 때 10대 서버의 설정 파일을 모두 각각 변경해야 하는 불편함이 있다.
+
+설정 파일이 별도로 관리되기 때문에 설정값의 변경 이력을 확인하기 어렵다. 
+
+특히 설정값의 변경 이력이 프로젝트 코드들과 어떻게 영향을 주고 받는지 그 이력을 같이 확인하기 어렵다.
+
+## 설정 데이터2 - 내부 파일 분리
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
