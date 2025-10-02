@@ -629,7 +629,7 @@ public class EnvironmentCheck {
 
 그 중에서도 `.properties` 라는 파일은 `key=value` 형식을 사용해서 설정값을 관리하기에 아주 적합하다.
 
-<<사진>>
+<img width="613" height="313" alt="Screenshot 2025-10-02 at 14 18 16" src="https://github.com/user-attachments/assets/853c5575-e47e-4362-957b-29e9d1c5850f" />
 
 `application.properties` **개발 서버**에 있는 외부 파일 
 
@@ -665,8 +665,7 @@ password=prod_pw
 
 당연히 설정 데이터도 `Environment` 를 통해서 조회할 수 있다.
 
-<<사진>>
-
+<img width="634" height="267" alt="Screenshot 2025-10-02 at 14 19 33" src="https://github.com/user-attachments/assets/b69d4bd3-e8a7-4397-8ce9-221530a21e76" />
 
 **참고**
 
@@ -689,7 +688,7 @@ password=dev_pw
 
 **실행 결과**
 
-<<사진>>
+<img width="541" height="234" alt="Screenshot 2025-10-02 at 14 22 00" src="https://github.com/user-attachments/assets/54967b50-de9e-44d5-82fa-3b0d2608bf5d" />
 
 이렇게 각각의 환경에 따라 설정 파일의 내용을 다르게 준비하면 된다. 덕분에 설정값의 내용이 많고 복잡해도 파일로 편리하게 관리할 수 있다.
 
