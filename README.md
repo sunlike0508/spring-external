@@ -915,6 +915,244 @@ env password=dev_pw
 
 이제 `application.properties` 라는 파일 하나에 통합해서 다양한 프로필의 설정 데이터를 관리할 수 있다.
 
+## 우선순위 - 설정 데이터
+
+`application.properties`
+
+```properties
+ spring.config.activate.on-profile=dev
+ url=dev.db.com
+ username=dev_user
+ password=dev_pw
+#---
+ spring.config.activate.on-profile=prod
+ url=prod.db.com
+ username=prod_user
+ password=prod_pw
+```
+
+이런 상태에서 만약 프로필을 적용하지 않는다면 어떻게 될까? 
+
+`--spring.profiles.active=dev` 이런 옵션을 지정하지 않는다는 뜻이다.
+
+프로필을 적용하지 않고 실행하면 해당하는 프로필이 없으므로 키를 각각 조회하면 값은 `null` 이 된다.
+
+**실행 결과**
+```
+No active profile set, falling back to 1 default profile: "default"
+...
+env url=null
+env username=null
+env password=null
+```
+
+실행 결과를 보면 첫줄에 활성 프로필이 없어서 `default` 라는 이름의 프로필이 활성화 되는 것을 확인할 수 있다. 
+
+프로필을 지정하지 않고 실행하면 스프링은 기본으로 `default` 라는 이름의 프로필을 사용한다.
+
+**기본값**
+
+내 PC에서 개발하는 것을 보통 로컬( `local` ) 개발 환경이라 한다. 
+
+이때도 항상 프로필을 지정하면서 실행하는 것은 상당히 피곤할 것이다.
+
+설정 데이터에는 기본값을 지정할 수 있는데, 프로필 지정과 무관하게 이 값은 항상 사용된다.
+
+`application.properties` - 수정 
+
+```properties
+url=local.db.com
+username=local_user
+password=local_pw
+#---
+spring.config.activate.on-profile=dev
+url=dev.db.com
+username=dev_user
+password=dev_pw
+#---
+spring.config.activate.on-profile=prod
+url=prod.db.com
+username=prod_user
+password=prod_pw
+```
+
+스프링은 문서를 위에서 아래로 순서대로 읽으면서 설정한다.
+
+여기서 처음에 나오는 다음 논리 문서는 `spring.config.activate.on-profile` 와 같은 프로필 정보가 없다.
+
+따라서 프로필과 무관하게 설정 데이터를 읽어서 사용한다. 
+
+이렇게 프로필 지정과 무관하게 사용되는 것을 기본값이라 한다. 
+
+```properties
+url=local.db.com
+username=local_user
+password=local_pw
+```
+
+**실행**
+
+프로필을 지정하지 않고 실행해보자.
+
+<<사진>>
+
+실행 결과 특정 프로필이 없기 때문에 기본값이 사용된다. 이번에는 프로필을 지정하고 실행해보자.
+
+**실행**
+
+* 커맨드 라인 옵션 인수 실행
+  * `--spring.profiles.active=dev` 
+* 자바 시스템 속성 실행 
+  * `-Dspring.profiles.active=dev`
+
+**실행 결과** 
+
+```
+env url=dev.db.com
+env username=dev_user
+env password=dev_pw
+```
+
+프로필을 준 부분이 기본값 보다는 우선권을 가지는 것을 확인할 수 있다.
+
+
+**설정 데이터 적용 순서**
+
+이번에는 설정 데이터의 적용 순서에 대해서 좀 더 자세히 알아보자.
+
+```properties
+url=local.db.com
+username=local_user
+password=local_pw
+!---
+spring.config.activate.on-profile=dev
+url=dev.db.com
+username=dev_user
+password=dev_pw
+#---
+spring.config.activate.on-profile=prod
+url=prod.db.com
+username=prod_user
+password=prod_pw
+```
+
+사실 스프링은 **단순하게 문서를 위에서 아래로 순서대로 읽으면서 사용할 값을 설정**한다.
+
+1. 스프링은 순서상 위에 있는 `local` 관련 논리 문서의 데이터들을 읽어서 설정한다. 여기에는 `spring.config.activate.on-profile` 와 같은 별도의 프로필을 지정하지 않았기 때문에 프로필과 무관하게 항상 값을 사용하도록 설정한다.
+
+```properties
+url=local.db.com
+username=local_user
+password=local_pw
+```
+
+2. 스프링은 그 다음 순서로 `dev` 관련 논리 문서를 읽는데 만약 `dev` 프로필이 설정되어있다면 기존 데이터를 `dev` 관련 논리 문서의 값으로 대체한다. 물론 `dev` 프로필을 사용하지 않는다면 `dev` 관련 논리 문서는 무시되고, 그 값도 사용하지 않는다.
+
+
+```properties
+url=local.db.com    -> dev.db.com
+username=local_user -> dev_user
+password=local_pw   -> dev_pw
+```
+
+3. 스프링은 그 다음 순서로 `prod` 관련 논리 문서를 읽는데 만약 `prod` 프로필이 설정되어있다면 기존 데이터를 `prod` 관련 논리 문서의 값으로 대체한다. 물론 `prod` 프로필을 사용하지 않는다면 `prod` 관련 논리 문서는 무시되고, 그 값도 사용하지 않는다.
+
+```properties
+url=dev.db.com    -> prod.db.com
+username=dev_user -> prod_user
+password=dev_pw   -> prod_pw
+```
+
+참고로 프로필을 한번에 둘 이상 설정하는 것도 가능하다. 
+
+`--spring.profiles.active=dev,prod`
+
+
+**순서대로 설정 확인**
+
+극단적인 예시를 통해서 순서를 확실히 이해해보자.
+
+```properties
+url=local.db.com
+username=local_user
+password=local_pw
+!---
+spring.config.activate.on-profile=dev
+url=dev.db.com
+username=dev_user
+password=dev_pw
+#---
+spring.config.activate.on-profile=prod
+url=prod.db.com
+username=prod_user
+password=prod_pw
+!---
+url=hello.db.com
+```
+
+
+스프링이 설정 파일을 위에서 아래로 순서대로 읽어서 사용할 값을 설정한다는 것은 이 예제를 실행해보면 확실히 이해 할 수 있다.
+
+결과가 어떻게 나올지 먼저 상상해보자.
+
+1. 스프링은 처음에 `local` 관련 논리 문서의 데이터들을 읽어서 설정한다. 여기에는 별도의 프로필을 지정하지 않았기 때문에 프로필과 무관하게 항상 값이 설정된다.
+2. 스프링은 그 다음 순서로 `dev` 관련 논리 문서를 읽는데 만약 `dev` 프로필이 설정되어있다면 기존 데 이터를 `dev` 관련 논리 문서의 값으로 대체한다.
+3. 스프링은 그 다음 순서로 `prod` 관련 논리 문서를 읽는데 만약 `prod` 프로필이 설정되어있다면 기존 데이터를 `prod` 관련 논리 문서의 값으로 대체한다.
+4. 스프링은 마지막으로 `hello` 관련 논리 문서의 데이터들을 읽어서 설정한다. 여기에는 별도의 프로필을 지정하지 않았기 때문에 프로필과 무관하게 항상 값이 설정된다.
+   
+위에서 아래로 순서대로 실행하는데, 마지막에는 프로필이 없기 때문에 항상 마지막의 값들을 적용하게 된다. 만약 `prod` 프로필을 사용한다면 다음과 같이 설정된다.
+
+<<사진2>>
+
+물론 이렇게 사용하는 것은 의미가 없다. 
+
+이해를 돕기 위해 이렇게 극단적인 예제를 사용했다. 보통은 기본값을 처음에 두고 그 다음에 프로필이 필요한 논리 문서들을 둔다.
+
+**정리하면 다음과 같다.**
+
+단순하게 문서를 위에서 아래로 순서대로 읽으면서 값을 설정한다. 이때 기존 데이터가 있으면 덮어쓴다.
+
+논리 문서에 `spring.config.activate.on-profile` 옵션이 있으면 해당 프로필을 사용할 때만 논리 문서를 적용한다.
+
+**속성 부분 적용**
+
+만약 프로필에서 일부 내용만 교체하면 어떻게 되는지 알아보자.
+
+```properties
+url=local.db.com
+username=local_user
+password=local_pw
+#---
+spring.config.activate.on-profile=dev
+url=dev.db.com
+```
+
+만약 다음과 같이 적용하고 `dev` 프로필을 사용하면 어떤 결과가 나올까? 먼저 순서대로 `local` 관련 정보가 입력된다.
+
+```properties
+url=local.db.com
+username=local_user
+password=local_pw
+```
+
+이후에 `dev` 관련 문서를 읽게 되는데, `dev` 프로필이 활성화 되어 있다고 가정하자. `dev` 관련 문서에서는 `url=dev.db.com` 만 설정한다. 
+
+이 경우 기존에 설정값에서 `url` 만 변경된다.
+
+```properties
+The following 1 profile is active: "dev"
+...
+url=dev.db.com
+username=local_user
+password=local_pw
+```
+
+최종적으로 `url` 부분은 `dev.db.com` 으로 `dev` 프로필에서 적용한 것이 반영되고, 나머지는 처음에 입력한 기본값이 유지된다.
+
+스프링의 우선순위에 따른 설정값은 대부분 지금과 같이 기존 데이터를 변경하는 방식으로 적용된다.
+
+
+
 
 
 
