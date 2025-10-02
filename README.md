@@ -703,18 +703,102 @@ password=dev_pw
 
 특히 설정값의 변경 이력이 프로젝트 코드들과 어떻게 영향을 주고 받는지 그 이력을 같이 확인하기 어렵다.
 
+---
+
 ## 설정 데이터2 - 내부 파일 분리
 
+설정 파일을 외부에 관리하는 것은 상당히 번거로운 일이다. 
+
+설정을 변경할 때 마다 서버에 들어가서 각각의 변경 사항을 수정해두어야 한다.(물론 이것을 자동화 하기 위해 노력할 수는 있다)
+
+이 문제를 해결하는 간단한 방법은 설정 파일을 프로젝트 내부에 포함해서 관리하는 것이다. 
+
+그리고 빌드 시점에 함께 빌드되게 하는 것이다. 
+
+이렇게 하면 애플리케이션을 배포할 때 설정파일의 변경사항도 함께 배포할 수 있다. 
+
+쉽게이야기해서 `jar` 하나로 설정 데이터까지 포함해서 관리하는 것이다.
+
+<<사진1>>
+
+* 프로젝트안에 소스코드뿐만 아니라 각 환경에 필요한 설정 데이터도 함께 포함해서 관리한다. 
+  * 개발용 설정 파일: `application-dev.properties`
+  * 운영용 설정 파일: `application-prod.properties`
+* 빌드 시점에 개발, 운영 설정 파일을 모두 포함해서 빌드한다.
+* `app.jar` 는 개발, 운영 두 설정 파일을 모두 가지고 배포된다. 
+* 실행할 때 어떤 설정 데이터를 읽어야 할지 최소한의 구분은 필요하다. 
+  * 개발 환경이라면 `application-dev.properties` 를 읽어야 하고, 
+  * 운영 환경이라면 `application-prod.properties` 를 읽어야 한다. 
+  * 실행할 때 외부 설정을 사용해서 개발 서버는 `dev` 라는 값을 제공하고, 운영 서버는 `prod` 라는 값을 제공하자. 편의상 이 값을 프로필이라 하자.
+    * `dev` 프로필이 넘어오면 `application-dev.properties` 를 읽어서 사용한다.
+    * `prod` 프로필이 넘어오면 `application-prod.properties` 를 읽어서 사용한다.
+
+외부 설정으로 넘어온 프로필 값이 `dev` 라면 `application-dev.properties` 를 읽고 `prod` 라면 `application-prod.properties` 를 읽어서 사용하면 된다. 
+
+스프링은 이미 설정 데이터를 내부에 파일로 분리해 두고 외부 설정값(프로필)에 따라 각각 다른 파일을 읽는 방법을 다 구현해두었다. 
+
+**스프링과 내부 설정 파일 읽기**
+
+`main/resources` 에 다음 파일을 추가하자 `application-dev.properties` 개발 프로필에서 사용
+
+```properties
+url=dev.db.com
+username=dev_user
+password=dev_pw
+```
+`application-prod.properties` 운영 프로필에서 사용 
+
+```properties
+url=prod.db.com
+username=prod_user
+password=prod_pw
+```
+
+**프로필**
+
+스프링은 이런 곳에서 사용하기 위해 프로필이라는 개념을 지원한다.
+
+`spring.profiles.active` 외부 설정에 값을 넣으면 해당 프로필을 사용한다고 판단한다.
+
+그리고 프로필에 따라서 다음과 같은 규칙으로 해당 프로필에 맞는 내부 파일(설정 데이터)을 조회한다. 
+
+`application-{profile}.properties`
+
+예시)
+
+`spring.profiles.active=dev`
+
+`dev` 프로필이 활성화 되었다. `application-dev.properties` 를 설정 데이터로 사용한다. 
+
+`spring.profiles.active=prod`
+
+`prod` 프로필이 활성화 되었다. `application-prod.properties` 를 설정 데이터로 사용한다.
+
+**실행**
+
+* IDE에서 커맨드 라인 옵션 인수 실행 `--spring.profiles.active=dev`
+
+* IDE에서 자바 시스템 속성 실행 `-Dspring.profiles.active=dev`
+
+* Jar 실행
+  * `./gradlew clean build`
+  * `build/libs` 로 이동
+  * `java -Dspring.profiles.active=dev -jar external-0.0.1-SNAPSHOT.jar` 
+  * `java -jar external-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev`
+
+
+**dev 프로필로 실행 결과** 
+
+
+**prod 프로필로 실행 결과** 
 
 
 
+이제 설정 데이터를 프로젝트 안에서 함께 관리할 수 있게 되었고, 배포 시점에 설정 정보도 함께 배포된다. 
 
+**남은 문제**
 
-
-
-
-
-
+설정 파일을 각각 분리해서 관리하면 한눈에 전체가 들어오지 않는 단점이 있다.
 
 
 
