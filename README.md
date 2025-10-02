@@ -1156,6 +1156,99 @@ password=local_pw
 
 스프링의 우선순위에 따른 설정값은 대부분 지금과 같이 기존 데이터를 변경하는 방식으로 적용된다.
 
+## 우선순위 - 전체
+
+스프링 부트는 같은 애플리케이션 코드를 유지하면서 다양한 외부 설정을 사용할 수 있도록 지원한다.
+
+**외부 설정에 대한 우선순위 - 스프링 공식 문서**
+
+https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config
+
+**우선순위는 위에서 아래로 적용된다. 아래가 더 우선순위가 높다.**
+
+**자주 사용하는 우선순위**
+
+* 설정 데이터( `application.properties` )
+* OS 환경변수 
+* 자바 시스템 속성 커맨드 라인 옵션 인수
+* `@TestPropertySource` (테스트에서 사용)
+
+**설정 데이터 우선순위**
+
+* jar 내부 `application.properties`
+* jar 내부 프로필 적용 파일 `application-{profile}.properties` jar 외부 `application.properties`
+* jar 외부 프로필 적용 파일 `application-{profile}.properties`
+
+**설정 데이터 우선순위 - 스프링 공식 문서**
+
+https://docs.spring.io/spring-boot/docs/current/reference/html/ features.html#features.external-config.files
+
+**우선순위 이해 방법**
+
+우선순위는 상식 선에서 딱 2가지만 생각하면 된다.
+
+* 더 유연한 것이 우선권을 가진다. (변경하기 어려운 파일 보다 실행시 원하는 값을 줄 수 있는 자바 시스템 속성이 더 우선권을 가진다.)
+* 범위가 넒은 것보다 좁은 것이 우선권을 가진다. 
+  * OS 환경변수 보다 자바 시스템 속성이 우선권이 있다. 
+  * 자바 시스템 속성보다 커맨드 라인 옵션 인수가 우선권이 있다.
+
+### 추가 또는 변경되는 방식
+
+`Environment` 를 통해서 조회하는 관점에서 보면 외부 설정값들은 계속 추가되거나 기존 값을 덮어서 변경하는 것처럼 보인다. 
+
+물론 실제 값을 덮어서 변경하는 것은 아니고, 우선순위가 높은 값이 조회되는 것이다. 
+
+그런데 이렇게 이해하면 개념적으로 더 쉽게 이해할 수 있다.
+
+예를 들어서 설정 데이터( `application.properties` )에 다음과 같이 설정했다.
+
+**application.properties**
+
+```properties
+url=local.db.com
+```
+자바 시스템 속성을 다음과 같이 적용했다. 
+
+**자바 시스템 속성 추가**
+
+`-Dusername=local_user` 
+
+**조회 결과**
+
+```properties
+url=local.db.com
+username=local_user
+```
+
+자바 시스템 속성에서 기존에 없던 키 값을 추가했기 때문에 속성이 추가되었다.
+
+커맨드 라인 옵션 인수를 다음과 같이 적용했다. 
+
+**커맨드 라인 옵션 인수 추가**
+
+`--url=dev.db.com` 
+
+**조회 결과**
+
+```properties
+ url=dev.db.com
+ username=local_user
+```
+
+커맨드라인 옵션 인수는 기존에 있던 `url` 이라는 키값을 사용했기 때문에 기존에 있던 값이 새로운 값으로 변경되었다.
+
+**정리**
+
+이렇게 우선순위에 따라서 설정을 추가하거나 변경하는 방식은 상당히 편리하면서도 유연한 구조를 만들어준다. 
+
+실무에서 대부분의 개발자들은 `applicaiton.properties` 에 외부 설정값들을 보관한다. 
+
+이렇게 설정 데이터를 기본으로 사용하다가 일부 속성을 변경할 필요가 있다면 더 높은 우선순위를 가지는 자바 시스템 속성이나 커맨드 라인 옵션 인수를 사용하면 되는 것이다.
+
+또는 기본적으로 `application.properties` 를 jar 내부에 내장하고 있다가, 특별한 환경에서는 `application.properties` 를 외부 파일로 새로 만들고 변경하고 싶은 일부 속성만 입력해서 변경하는 것도 가능하다.
+
+
+
 
 
 
