@@ -996,7 +996,7 @@ password=local_pw
 
 프로필을 지정하지 않고 실행해보자.
 
-<<사진>>
+<img width="591" height="222" alt="Screenshot 2025-10-02 at 17 28 57" src="https://github.com/user-attachments/assets/87ae976f-c1d2-4843-9340-aa3a43a7d634" />
 
 실행 결과 특정 프로필이 없기 때문에 기본값이 사용된다. 이번에는 프로필을 지정하고 실행해보자.
 
@@ -1069,6 +1069,9 @@ password=dev_pw   -> prod_pw
 
 `--spring.profiles.active=dev,prod`
 
+**실행결과**
+
+<img width="450" height="233" alt="Screenshot 2025-10-02 at 17 32 34" src="https://github.com/user-attachments/assets/526e78d6-4673-451c-9a96-e89e4f578a58" />
 
 **순서대로 설정 확인**
 
@@ -1104,7 +1107,7 @@ url=hello.db.com
    
 위에서 아래로 순서대로 실행하는데, 마지막에는 프로필이 없기 때문에 항상 마지막의 값들을 적용하게 된다. 만약 `prod` 프로필을 사용한다면 다음과 같이 설정된다.
 
-<<사진2>>
+<img width="594" height="241" alt="Screenshot 2025-10-02 at 17 33 35" src="https://github.com/user-attachments/assets/99422bcf-76dc-40c1-bedd-ba24af993996" />
 
 물론 이렇게 사용하는 것은 의미가 없다. 
 
