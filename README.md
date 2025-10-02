@@ -806,6 +806,8 @@ password=prod_pw
 
 스프링은 이런 단점을 보완하기 위해 물리적인 하나의 파일 안에서 논리적으로 영역을 구분하는 방법을 제공한다.
 
+<img width="608" height="219" alt="Screenshot 2025-10-02 at 14 55 38" src="https://github.com/user-attachments/assets/8b5c9bdd-4a3a-4f5b-84ec-3705438c272a" />
+
 * 기존에는 dev 환경은 `application-dev.properties` , prod 환경은 `application- prod.properties` 파일이 필요했다.
 * 스프링은 하나의 `application.properties` 파일 안에서 논리적으로 영역을 구분하는 방법을 제공한다.
 * `application.properties` 라는 하나의 파일 안에서 논리적으로 영역을 나눌 수 있다.
